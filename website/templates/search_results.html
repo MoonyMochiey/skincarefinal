@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="mt-4 mb-4">Search Results for "{{ query }}"</h1>
+    {% if entries %}
+        <div class="row">
+            {% for entry in entries %}
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            Product Summary
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">{{ entry.name }}</h5>
+                            <p class="card-text mb-2">{{ entry.description }}</p>
+                            <p class="card-text mb-1"><strong>Brand:</strong> {{ entry.brand }}</p>
+                            <p class="card-text mb-1"><strong>Price:</strong> {{ entry.price }}</p>
+                            <p class="card-text mb-1"><strong>Skin Target:</strong> {{ entry.target }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% if loop.index % 4 == 0 %}
+                    </div><div class="row">
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}

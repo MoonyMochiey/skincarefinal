@@ -1,0 +1,167 @@
+{% extends "base.html" %} {% block title %}Form{% endblock %} {% block content %}
+<form method="POST">
+    <h3 align="center">Skincare Routine</h3>
+
+    <div class="form-group">
+        <label for="cleanser">Cleanser</label>
+        <input
+            type="text"
+            class="form-control"
+            id="cleanser"
+            name="cleanser"
+            placeholder="Enter cleanser"
+        />
+    </div>
+    
+    <div class="form-group">
+        <label for="toner">Toner</label>
+        <input
+            type="text"
+            class="form-control"
+            id="toner"
+            name="toner"
+            placeholder="Enter toner"
+        />
+    </div>
+    
+    <div class="form-group">
+        <label for="moisturizer">Moisturizer</label>
+        <input
+            type="text"
+            class="form-control"
+            id="moisturizer"
+            name="moisturizer"
+            placeholder="Enter moisturizer"
+        />
+    </div>
+    <div class="form-group">
+        <label for="serum">Serum</label>
+        <input
+            type="text"
+            class="form-control"
+            id="serum"
+            name="serum"
+            placeholder="Enter serum"
+        />
+    </div>
+    <div class="form-group">
+        <label for="sunscreen">Sunscreen</label>
+        <input
+            type="text"
+            class="form-control"
+            id="sunscreen"
+            name="sunscreen"
+            placeholder="Enter sunscreen"
+        />
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+{% if entries %}
+<h3 align="center">Submitted Entries</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cleanser</th>
+            <th>Toner</th>
+            <th>Moisturizer</th>
+            <th>Serum</th>
+            <th>Sunscreen</th>
+           
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+        <tr>
+            <td>{{ entry.cleanser }}</td>
+            <td>{{ entry.toner }}</td>
+            <td>{{ entry.moisturizer }}</td>
+            <td>{{ entry.serum }}</td>
+            <td>{{ entry.sunscreen }}</td>
+            
+            
+            <td>
+                <!-- Delete button -->
+                <form id="delete-form-{{ entry.id }}" action="{{ url_for('auth.delete_entry', entry_id=entry.id) }}" method="POST">
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ entry.id }}')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<form id="sort-form">
+    <div class="form-group">
+        <label for="sort_key">Sort by:</label>
+        <select name="sort_key" class="form-control" id="sort_key">
+            <option value="cleanser">Cleanser</option>
+            <option value="toner">Toner</option>
+            <option value="moisturizer">Moisturizer</option>
+            <option value="serum">Serum</option>
+            <option value="sunscreen">Sunscreen</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="sort_order">Order:</label>
+        <select name="sort_order" class="form-control" id="sort_order">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="sortEntries()">Sort</button>
+</form>
+
+
+{% endif %}
+
+<script>
+    function confirmDelete(entryId) {
+        if (confirm("Are you sure you want to delete this entry? If so, you will need to restart a form.")) {
+            document.getElementById('delete-form-' + entryId).submit();
+        } else {
+            // Do nothing or provide alternative action
+        }
+    }
+
+    function sortEntries() {
+            const sortKey = document.getElementById('sort_key').value;
+            const sortOrder = document.getElementById('sort_order').value;
+
+            fetch('{{ url_for("auth.sort_entries") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sort_key: sortKey, sort_order: sortOrder })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('table tbody');
+                tbody.innerHTML = '';
+                data.forEach(entry => {
+                    const row = `<tr>
+                        <td>${entry.cleanser}</td>
+                        <td>${entry.toner}</td>
+                        <td>${entry.moisturizer}</td>
+                        <td>${entry.serum}</td>
+                        <td>${entry.sunscreen}</td>
+                        <td>
+                            <form id="delete-form-${entry.id}" action="${entry.delete_url}" method="POST">
+                                <button type="button" class="btn btn-danger" onclick="confirmDelete('${entry.id}')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+</script>
+{% endblock %}
